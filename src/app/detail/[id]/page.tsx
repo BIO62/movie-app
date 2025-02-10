@@ -15,7 +15,6 @@ const MovieDetailPage = () => {
   const [errorMessage, setErrorMessage] = useState("");
   const [movieDetail, setMovieDetail] = useState<Movie | null>(null);
   const [trailerKey, setTrailerKey] = useState<string | null>(null);
-  const [credits, setCredits] = useState<any>(null);
 
   const getMovieData = async () => {
     if (!params.id) return;
@@ -25,14 +24,6 @@ const MovieDetailPage = () => {
 
       const movieResponse = await axios.get(
         `${TMDB_BASE_URL}/movie/${params.id}?language=en-US`,
-        {
-          headers: {
-            Authorization: `Bearer ${TMDB_API_TOKEN}`,
-          },
-        }
-      );
-      const creditsResponse = await axios.get(
-        `${TMDB_BASE_URL}/movie/${params.id}/credits?language=en-US`,
         {
           headers: {
             Authorization: `Bearer ${TMDB_API_TOKEN}`,
@@ -62,8 +53,10 @@ const MovieDetailPage = () => {
         setErrorMessage(err.response?.data.status_message || "Unknown error");
       }
       console.error(err);
-    
+    }
   };
+  console.log(movieDetail);
+  
 
   useEffect(() => {
     getMovieData();

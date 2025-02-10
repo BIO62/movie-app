@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import { Movie } from "@/types/movie-types";
 import { Star, Play, ChevronLeft, ChevronRight } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion"; // Framer Motion
+import { motion, AnimatePresence } from "framer-motion";
 
 const TMDB_BASE_URL = process.env.TMDB_BASE_URL;
 const TMDB_API_TOKEN = process.env.TMDB_API_TOKEN;
@@ -16,6 +16,8 @@ export const ImageSlider = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
 
   const getMovieData = async () => {
+    console.log("token", TMDB_API_TOKEN);
+    
     try {
       setIsLoading(true);
       const response = await axios.get(
@@ -24,7 +26,7 @@ export const ImageSlider = () => {
           headers: { Authorization: `Bearer ${TMDB_API_TOKEN}` },
         }
       );
-      setPopularMovieData(response.data.results.slice(0, 10)); // Limit to 10 movies
+      setPopularMovieData(response.data.results.slice(0, 10));
       setIsLoading(false);
     } catch (err) {
       setIsLoading(false);
@@ -42,7 +44,7 @@ export const ImageSlider = () => {
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentIndex((prevIndex) => (prevIndex === 9 ? 0 : prevIndex + 1));
-    }, 9000); // Auto transition every 9 seconds
+    }, 9000); 
 
     return () => clearInterval(interval);
   }, [popularMovieData]);
@@ -71,13 +73,12 @@ export const ImageSlider = () => {
             className="absolute inset-0 bg-cover bg-center"
             style={{
               backgroundImage: `url(https://image.tmdb.org/t/p/original/${currentMovie?.backdrop_path})`,
-              backgroundSize: "cover", // Ensures image covers the container
+              backgroundSize: "cover", // 
               backgroundPosition: "center",
             }}
           ></motion.div>
         </AnimatePresence>
 
-        {/* Left Arrow Button */}
         <button
           onClick={goToPreviousMovie}
           className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 p-2 rounded-full text-white"
@@ -85,7 +86,6 @@ export const ImageSlider = () => {
           <ChevronLeft className="h-6 w-6" />
         </button>
 
-        {/* Right Arrow Button */}
         <button
           onClick={goToNextMovie}
           className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 p-2 rounded-full text-white"

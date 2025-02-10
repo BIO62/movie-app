@@ -48,7 +48,7 @@ const Popular = () => {
           {popularMovieData.map((movie) => (
             <div
               key={movie.id}
-              className="group w-[157.5px] overflow-hidden rounded-lg bg-secondary space-y-1 lg:w-[230px]"
+              className="group w-[157.5px] overflow-hidden rounded-lg bg-secondary space-y-1 lg:w-[230px] cursor-pointer"
             >
               <div
                 className="overflow-hidden relative w-[157.5px] h-[234px] lg:w-[230px] lg:h-[340px]"
