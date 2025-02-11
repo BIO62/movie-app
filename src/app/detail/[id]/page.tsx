@@ -1,147 +1,254 @@
 "use client";
+
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import axios from "axios";
-import { Movie } from "@/types/movie-types";
 import Image from "next/image";
-import { Star } from "lucide-react";
+import { Play, Star } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 
 const TMDB_BASE_URL = process.env.TMDB_BASE_URL;
 const TMDB_API_TOKEN = process.env.TMDB_API_TOKEN;
 
+interface Genre {
+  id: number;
+  name: string;
+}
+
+interface Movie {
+  poster_path: string;
+  title: string;
+  vote_average: number;
+  overview: string;
+  backdrop_path: string;
+  release_date: string;
+  genres: Genre[];
+}
+
 const MovieDetailPage = () => {
-  const params = useParams();
-  const [isLoading, setIsLoading] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
-  const [movieDetail, setMovieDetail] = useState<Movie | null>(null);
-  const [trailerKey, setTrailerKey] = useState<string | null>(null);
-
-  const getMovieData = async () => {
-    if (!params.id) return;
-
-    try {
-      setIsLoading(true);
-
-      const movieResponse = await axios.get(
-        `${TMDB_BASE_URL}/movie/${params.id}?language=en-US`,
-        {
-          headers: {
-            Authorization: `Bearer ${TMDB_API_TOKEN}`,
-          },
-        }
-      );
-      const videosResponse = await axios.get(
-        `${TMDB_BASE_URL}/movie/${params.id}/videos?language=en-US`,
-        {
-          headers: {
-            Authorization: `Bearer ${TMDB_API_TOKEN}`,
-          },
-        }
-      );
-      const trailer = videosResponse.data.results.find(
-        (video: any) => video.type === "Trailer" && video.site === "YouTube"
-      );
-
-      setMovieDetail(movieResponse.data);
-      setTrailerKey(trailer ? trailer.key : null);
-      
-
-      setIsLoading(false);
-    } catch (err) {
-      setIsLoading(false);
-      if (axios.isAxiosError(err)) {
-        setErrorMessage(err.response?.data.status_message || "Unknown error");
-      }
-      console.error(err);
-    }
-  };
-  console.log(movieDetail);
-  
+  const { id } = useParams();
+  const [movie, setMovie] = useState<Movie | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [director, setDirector] = useState("Unknown");
+  const [writers, setWriters] = useState("Unknown");
+  const [stars, setStars] = useState("Unknown");
+  const [trailerUrl, setTrailerUrl] = useState<string | null>(null);
+  const [isTrailerOpen, setIsTrailerOpen] = useState(false);
 
   useEffect(() => {
-    getMovieData();
-  }, [params.id]);
+    const fetchMovieDetails = async () => {
+      try {
+        const response = await axios.get(
+          `${TMDB_BASE_URL}/movie/${id}?language=en-US`,
+          {
+            headers: {
+              Authorization: `Bearer ${TMDB_API_TOKEN}`,
+            },
+          }
+        );
+        setMovie(response.data);
+        fetchMovieCredits(); 
+        fetchTrailer(); 
+      } catch (error) {
+        setError("Failed to load movie details.");
+        console.error("Error fetching movie details:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    const fetchMovieCredits = async () => {
+      try {
+        const response = await axios.get(
+          `${TMDB_BASE_URL}/movie/${id}/credits`,
+          {
+            headers: {
+              Authorization: `Bearer ${TMDB_API_TOKEN}`,
+            },
+          }
+        );
+
+        const crew = response.data.crew;
+        const cast = response.data.cast;
+
+        const directorData = crew.find((person) => person.job === "Director");
+        setDirector(directorData ? directorData.name : "Unknown");
+
+        const writerNames = crew
+          .filter(
+            (person) => person.job === "Writer" || person.job === "Screenplay"
+          )
+          .map((writer) => writer.name);
+        setWriters(writerNames.length > 0 ? writerNames.join(", ") : "Unknown");
+
+        const topStars = cast
+          .slice(0, 2)
+          .map((actor) => actor.name)
+          .join(", ");
+        setStars(topStars.length > 0 ? topStars : "Unknown");
+      } catch (error) {
+        console.error("Error fetching movie credits:", error);
+      }
+    };
+
+    const fetchTrailer = async () => {
+      try {
+        const response = await axios.get(
+          `${TMDB_BASE_URL}/movie/${id}/videos?language=en-US`,
+          {
+            headers: { Authorization: `Bearer ${TMDB_API_TOKEN}` },
+          }
+        );
+
+        const trailer = response.data.results.find(
+          (video) => video.type === "Trailer" && video.site === "YouTube"
+        );
+
+        if (trailer) {
+          setTrailerUrl(`https://www.youtube.com/watch?v=${trailer.key}`);
+        }
+      } catch (error) {
+        console.error("Error fetching trailer:", error);
+      }
+    };
+
+    if (id) {
+      fetchMovieDetails();
+    }
+  }, [id]);
+  
+  const formatRuntime = (minutes) => {
+    const hours = Math.floor(minutes / 60);
+    const mins = minutes % 60;
+    return `${hours}h ${mins}m`;
+  };
+  
+
+  if (isLoading)
+    return <p className="text-center mt-10">Loading movie details...</p>;
+  if (error) return <p className="text-center mt-10 text-red-500">{error}</p>;
+  if (!movie)
+    return <p className="text-center mt-10 text-red-500">Movie not found.</p>;
 
   return (
-    <div className="page-detail text-foreground mt-20">
-      {isLoading && <p>Loading...</p>}
-      {errorMessage && <p className="text-red-500">{errorMessage}</p>}
-      {movieDetail && (
-        <>
-          <div className="mt-8 mb-4 px-5 flex justify-between lg:mt-[52px] lg:mb-6 lg:px-0">
+    <div className="py-10 pt-[59px] px-4 max-w-[1150px] mx-auto">
+      <div className="flex justify-between mt-8 mb-4 px-5">
+        <div>
+          <h1 className="text-2xl font-bold w-52 lg:w-fit lg:text-4xl">
+            {movie.title}
+          </h1>
+          <span className="text-sm lg:text-lg">{movie.release_date}</span>
+          <span className="text-sm lg:text-lg"> • {formatRuntime(movie.runtime)} </span>
+        </div>
+        <div className="text-gray-500 text-sm flex">
+          <Star className="w-6 h-6 text-yellow-400" fill="currentColor" />
+          <div className="text-black">{movie.vote_average.toFixed(1)}</div> / 10
+        </div>
+      </div>
+
+      <div className="flex gap-x-8 mb-8 px-5">
+        <div>
+          {" "}
+          <Image
+            src={`https://image.tmdb.org/t/p/original${movie.poster_path}`}
+            alt={movie.title}
+            width={288}
+            height={428}
+            className="object-cover hidden lg:block rounded"
+          />
+        </div>
+        <div className="relative">
+          <Image
+            src={`https://image.tmdb.org/t/p/original${movie.backdrop_path}`}
+            alt={movie.title}
+            width={760}
+            height={375}
+            className="rounded"
+          />
+          <div className="absolute left-0 top-0 w-full h-full  bg-black opacity-30 rounded" />
+          <div className="absolute left-6 bottom-6 z-20 flex items-center gap-2">
+            <Button
+              onClick={() => setIsTrailerOpen(true)}
+              className="bg-white text-black p-3 rounded-full shadow"
+            >
+              <Play className="w-5 h-5" />
+            </Button>
+            <a className="text-white">Play Trailer</a>
+          </div>
+        </div>
+      </div>
+
+      <div className="flex gap-x-[34px] px-5 pt-8">
+        <div className="flex-shrink-0 lg:hidden">
+          <Image
+            src={`https://image.tmdb.org/t/p/original${movie.poster_path}`}
+            width={100}
+            height={148}
+            alt={movie.title}
+            className="object-cover block lg:hidden rounded"
+          />
+        </div>
+
+        <div>
+          <div className="text-gray-500 flex flex-wrap gap-3">
+            {movie.genres.length > 0 ? (
+              movie.genres.map((genre) => (
+                <span key={genre.id} className="font-medium">
+                  <Badge variant="outline">{genre.name}</Badge>
+                </span>
+              ))
+            ) : (
+              <span className="font-medium">No genres available</span>
+            )}
+          </div>
+          <p className="text-gray-700 mt-5">{movie.overview}</p>
+          <div className="space-y-5 text-foreground mb-8 px-5 mt-4">
             <div className="space-y-1">
-              <h1 className="break-words text-2xl font-bold w-52 lg:w-fit lg:text-4xl">
-                {movieDetail.title}
-              </h1>
-              <p className="text-sm lg:text-lg">{movieDetail.release_date}</p>
-            </div>
-            <div className="text-xs">
-              <h5 className="hidden lg:block">Rating</h5>
-              <div className="flex items-center py-[2px] gap-x-1">
-                <Star className="h-7 w-7 text-yellow-300 fill-current" />
-                <div>
-                  <div className="flex items-center gap-x-1">
-                    <div className="font-medium">
-                      <span className="text-foreground text-sm">
-                        {movieDetail.vote_average}
-                      </span>
-                      <span className="text-muted-foreground text-xs">/10</span>
-                    </div>
-                  </div>
-                  <span className="text-muted-foreground">
-                    {movieDetail.vote_count}
-                  </span>
-                </div>
+              <div className="flex pb-1">
+                <div className="font-bold w-20">Director:</div>
+                <div>{director}</div>
               </div>
             </div>
+            <div className="shrink-0 bg-border h-[1px] w-full my-1"></div>
+            <div className="space-y-1">
+              <div className="flex pb-1 ">
+                <div className="font-bold w-20 pr-8">Writers:</div>
+                <div>{writers}</div>
+              </div>
+            </div>
+            <div className="shrink-0 bg-border h-[1px] w-full my-1"></div>
+            <div className="space-y-1">
+              <div className="flex pb-1 ">
+                <div className="font-bold w-20 pr-14">Stars:</div>
+                <div>{stars}</div>
+              </div>
+            </div>
+            <div className="shrink-0 bg-border h-[1px] w-full my-1"></div>
           </div>
 
-          <div className="flex gap-x-8 mb-8">
-            <div className="relative">
-              {trailerKey ? (
+          {isTrailerOpen && trailerUrl && (
+            <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-75 z-50">
+              <div className="relative bg-black p-4 rounded-lg max-w-2xl w-full">
+                <button
+                  onClick={() => setIsTrailerOpen(false)}
+                  className="absolute top-2 right-2 bg-red-500 text-white px-3 py-1 rounded-md"
+                >
+                  ✖
+                </button>
                 <iframe
-                  className="relative overflow-hidden w-[375px] lg:w-[760px] h-[211px] lg:h-[428px] lg:rounded"
-                  src={`https://www.youtube.com/embed/${trailerKey}`}
-                  title="YouTube video player"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  className="w-full h-64 md:h-96"
+                  src={trailerUrl.replace("watch?v=", "embed/")}
+                  title="Movie Trailer"
+                  frameBorder="0"
                   allowFullScreen
                 ></iframe>
-              ) : (
-                <p className="text-gray-500">No trailer available</p>
-              )}
-            </div>
-          </div>
-          <div className="px-5 lg:px-0">
-            <div className="flex gap-x-[34px] lg:block">
-              <div>
-                <Image
-                  className="relative overflow-hidden block rounded shrink-0 lg:hidden"
-                  src={`https://image.tmdb.org/t/p/w500/${movieDetail.poster_path}`}
-                  alt="movie poster path"
-                  width={100}
-                  height={148}
-                />
-              </div>
-              <div className="space-y-5 mb-5">
-                <div className="flex flex-wrap gap-3">
-                  {/* genre orj irne */}
-                </div>
-
-                <p className="text-base">{movieDetail.overview}</p>
               </div>
             </div>
-            <div className="space-y-5 text-foreground mb-8">
-              <div className="space-y-1 ">
-                <div className="flex pb-1">{movieDetail.popularity}</div>
-                <h4 className="font-bold w-16 mr-13">Director</h4>
-              </div>
-              <div></div>
-              <div></div>
-            </div>
-            <div></div>
-          </div>
-        </>
-      )}
+          )}
+        </div>
+      </div>
     </div>
   );
 };

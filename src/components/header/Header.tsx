@@ -4,6 +4,7 @@ import { Film, Search, Moon, Sun, X, ChevronDown } from "lucide-react";
 import { Button } from "../ui/button";
 import { useTheme } from "next-themes";
 import { Input } from "../ui/input";
+import { useRouter } from "next/navigation";
 import { DropdownMenuCheckboxItemProps } from "@radix-ui/react-dropdown-menu";
 import {
   DropdownMenu,
@@ -20,12 +21,17 @@ const Header = () => {
   const [showStatusBar, setShowStatusBar] = React.useState<Checked>(true);
   const [showActivityBar, setShowActivityBar] = React.useState<Checked>(false);
   const [showPanel, setShowPanel] = React.useState<Checked>(false);
+  const router = useRouter();
+
+  const goHome = () => {
+    router.push("/"); 
+  };
 
   return (
     <div className="fixed top-0 inset-x-0 z-20 h-[59px] bg-background flex items-center justify-center">
       <div className="flex items-center justify-between w-full max-w-screen-xl px-5 lg:px-0">
         {/* Logo */}
-        <div className="flex items-center gap-x-2 text-indigo-700">
+        <div onClick={goHome} className="flex items-center gap-x-2 text-indigo-700">
           <Film />
           <p className="font-bold italic">Movie Z</p>
         </div>
