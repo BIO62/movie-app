@@ -10,7 +10,7 @@ const TMDB_API_TOKEN = process.env.TMDB_API_TOKEN;
 
 const CategoryList = () => {
   const { push } = useRouter();
-  const [isLoading, setIsLoading] = useState(false);
+  const [, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [popularMovieData, setPopularMovieData] = useState<Movie[]>([]);
 

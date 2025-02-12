@@ -7,8 +7,8 @@ const TMDB_BASE_URL = process.env.TMDB_BASE_URL;
 const TMDB_API_TOKEN = process.env.TMDB_API_TOKEN;
 
 const Popular = () => {
-  const [isLoading, setIsLoading] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
+  const [, setIsLoading] = useState(false);
+  const [, setErrorMessage] = useState("");
   const [popularMovieData, setPopularMovieData] = useState<Movie[]>([]);
 
   const getMovieData = async () => {

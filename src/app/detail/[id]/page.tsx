@@ -24,6 +24,7 @@ interface Movie {
   backdrop_path: string;
   release_date: string;
   genres: Genre[];
+  runtime: number;
 }
 
 const MovieDetailPage = () => {
@@ -73,19 +74,19 @@ const MovieDetailPage = () => {
         const crew = response.data.crew;
         const cast = response.data.cast;
 
-        const directorData = crew.find((person) => person.job === "Director");
+        const directorData: { name: string } | undefined = crew.find((person: { job: string }) => person.job === "Director");
         setDirector(directorData ? directorData.name : "Unknown");
 
-        const writerNames = crew
+        const writerNames: string[] = crew
           .filter(
-            (person) => person.job === "Writer" || person.job === "Screenplay"
+            (person: { job: string }) => person.job === "Writer" || person.job === "Screenplay"
           )
-          .map((writer) => writer.name);
+          .map((writer: { name: string }) => writer.name);
         setWriters(writerNames.length > 0 ? writerNames.join(", ") : "Unknown");
 
-        const topStars = cast
+        const topStars: string = cast
           .slice(0, 2)
-          .map((actor) => actor.name)
+          .map((actor: { name: string }) => actor.name)
           .join(", ");
         setStars(topStars.length > 0 ? topStars : "Unknown");
       } catch (error) {
@@ -102,8 +103,14 @@ const MovieDetailPage = () => {
           }
         );
 
+        interface Video {
+          type: string;
+          site: string;
+          key: string;
+        }
+
         const trailer = response.data.results.find(
-          (video) => video.type === "Trailer" && video.site === "YouTube"
+          (video: Video) => video.type === "Trailer" && video.site === "YouTube"
         );
 
         if (trailer) {
@@ -119,9 +126,9 @@ const MovieDetailPage = () => {
     }
   }, [id]);
   
-  const formatRuntime = (minutes) => {
-    const hours = Math.floor(minutes / 60);
-    const mins = minutes % 60;
+  const formatRuntime = (minutes: number): string => {
+    const hours: number = Math.floor(minutes / 60);
+    const mins: number = minutes % 60;
     return `${hours}h ${mins}m`;
   };
   

@@ -10,8 +10,8 @@ const TMDB_API_TOKEN = process.env.TMDB_API_TOKEN;
 const TMDB_API_KEY = process.env.TMDB_API_KEY;
 
 export const ImageSlider = () => {
-  const [isLoading, setIsLoading] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
+  const [, setIsLoading] = useState(false);
+  const [, setErrorMessage] = useState("");
   const [popularMovieData, setPopularMovieData] = useState<Movie[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
 
@@ -58,7 +58,6 @@ export const ImageSlider = () => {
   const goToPreviousMovie = () => {
     setCurrentIndex((prevIndex) => (prevIndex === 0 ? 9 : prevIndex - 1));
   };
-
   return (
     <div className="w-full h-auto flex flex-col lg:relative mt-[84px]">
       {/* Slider Container */}
@@ -82,16 +81,18 @@ export const ImageSlider = () => {
         <button
           onClick={goToPreviousMovie}
           className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 p-2 rounded-full text-white"
+          title="Previous Movie"
         >
           <ChevronLeft className="h-6 w-6" />
         </button>
-
         <button
           onClick={goToNextMovie}
           className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 p-2 rounded-full text-white"
+          title="Next Movie"
         >
           <ChevronRight className="h-6 w-6" />
         </button>
+
       </div>
 
       {/* Movie Information */}
