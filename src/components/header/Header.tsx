@@ -1,11 +1,12 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
-import { Film, Search, Moon, Sun, ChevronDown ,ArrowRight } from "lucide-react";
+import { Film, Search, Moon, Sun, ChevronDown, ArrowRight } from "lucide-react";
 import { Button } from "../ui/button";
 import { useTheme } from "next-themes";
 import { Input } from "../ui/input";
 import { useRouter } from "next/navigation";
+import GenreList from "../GenreList";
 
 import {
   DropdownMenu,
@@ -71,7 +72,6 @@ const Header = () => {
     router.push(url);
   };
 
-
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
@@ -100,10 +100,10 @@ const Header = () => {
           <p className="font-bold italic">Movie Z</p>
         </div>
 
-        <div className="relative hidden lg:flex items-center gap-x-3">
-          <DropdownMenu>
+        <div className="relative hidden lg:flex items-center gap-x-3 ">
+          <DropdownMenu >
             <DropdownMenuTrigger asChild>
-              <div className="relative border rounded-md border-gray-100 dark:border-gray-700">
+              <div className="relative border rounded-md border-gray-100 dark:border-gray-700 ">
                 <Button
                   variant="outline"
                   className="flex items-center justify-between px-3"
@@ -113,7 +113,7 @@ const Header = () => {
                 </Button>
               </div>
             </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-56 bg-white dark:bg-gray-800 text-black dark:text-white border dark:border-gray-600">
+            <DropdownMenuContent className="w-[335px] sm:w-[577px] bg-white dark:bg-gray-800 text-black dark:text-white border dark:border-gray-600">
               <DropdownMenuLabel className="space-y-1">
                 <h3 className="text-2xl font-semibold">Genres</h3>
                 <p className="text-sm font-normal">
@@ -121,15 +121,7 @@ const Header = () => {
                 </p>
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuCheckboxItem checked={true}>
-                Status Bar
-              </DropdownMenuCheckboxItem>
-              <DropdownMenuCheckboxItem checked={false}>
-                Activity Bar
-              </DropdownMenuCheckboxItem>
-              <DropdownMenuCheckboxItem checked={true}>
-                Panel
-              </DropdownMenuCheckboxItem>
+              <GenreList />
             </DropdownMenuContent>
           </DropdownMenu>
 
@@ -173,7 +165,7 @@ const Header = () => {
                       onClick={() => push(`/detail/${movie.id}`)}
                     >
                       See more
-                      <ArrowRight/>
+                      <ArrowRight />
                     </Button>
                   </div>
                 ))}
@@ -187,7 +179,7 @@ const Header = () => {
             variant="outline"
             className="w-9 h-9 md:hidden"
             onClick={() => {
-              console.log('Button clicked'); // Debug log
+              console.log("Button clicked"); // Debug log
               setShowSearch((prev) => !prev);
             }}
           >

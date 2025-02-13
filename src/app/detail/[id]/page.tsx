@@ -200,7 +200,7 @@ const MovieDetailPage = () => {
         </div>
       </div>
 
-      <div className="flex gap-x-[34px] px-5 pt-8">
+      <div className="flex gap-x-[34px] px-5 ">
         <div className="flex-shrink-0 lg:hidden">
           <Image
             src={`https://image.tmdb.org/t/p/original${movie.poster_path}`}
@@ -224,7 +224,7 @@ const MovieDetailPage = () => {
             )}
           </div>
           <p className="text-foreground mt-5">{movie.overview}</p>
-          <div className="space-y-5 text-foreground mb-8 px-5 mt-4">
+          <div className="space-y-5 text-foreground mb-8 mt-4">
             <div className="space-y-1">
               <div className="flex pb-1">
                 <div className="font-bold w-20">Director:</div>

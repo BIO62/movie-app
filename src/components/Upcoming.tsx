@@ -25,7 +25,7 @@ const Upcoming = () => {
           },
         }
       );
-      setPopularMovieData(response.data.results);
+      setPopularMovieData(response.data.results.slice(0, 10));
       setIsLoading(false);
     } catch (err) {
       setIsLoading(false);
