@@ -72,7 +72,7 @@ const Upcoming = () => {
               <div className="p-2">
                 <div className="flex flex-row w-auto h-auto justify-between lg:flex-col lg:gap-[8px]">
                   <div>
-                    <div className="flex items-center gap-x-1">
+                    <div className="flex items-center gap-x-1 font-bold">
                       <Star className="text-yellow-300 fill-current h-4 w-4" />
                       <p className="text-foreground text-sm">
                         {movie.vote_average}
@@ -80,7 +80,7 @@ const Upcoming = () => {
                       <p className="text-muted-foreground text-xs">/10</p>
                     </div>
 
-                    <p className="h-14 overflow-hidden text-ellipsis line-clamp-2 text-lg text-foreground">
+                    <p className="h-14 overflow-hidden text-ellipsis line-clamp-2 text-[20px] font-bold text-foreground">
                       {movie.original_title}
                     </p>
                   </div>

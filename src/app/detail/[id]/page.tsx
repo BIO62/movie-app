@@ -7,6 +7,7 @@ import Image from "next/image";
 import { Play, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import MoreLikeThis from "@/components/MoreLikeThis";
 
 const TMDB_BASE_URL = process.env.TMDB_BASE_URL;
 const TMDB_API_TOKEN = process.env.TMDB_API_TOKEN;
@@ -132,6 +133,18 @@ const MovieDetailPage = () => {
     return `${hours}h ${mins}m`;
   };
   
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setIsTrailerOpen(false);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, []);
 
   if (isLoading)
     return <p className="text-center mt-10">Loading movie details...</p>;
@@ -151,7 +164,7 @@ const MovieDetailPage = () => {
         </div>
         <div className="text-gray-500 text-sm flex">
           <Star className="w-6 h-6 text-yellow-400" fill="currentColor" />
-          <div className="text-black">{movie.vote_average.toFixed(1)}</div> / 10
+          <div className="text-foreground">{movie.vote_average.toFixed(1)}</div> / 10
         </div>
       </div>
 
@@ -175,7 +188,7 @@ const MovieDetailPage = () => {
             className="rounded"
           />
           <div className="absolute left-0 top-0 w-full h-full  bg-black opacity-30 rounded" />
-          <div className="absolute left-6 bottom-6 z-20 flex items-center gap-2">
+          <div className="absolute left-6 bottom-6 z-10 flex items-center gap-2">
             <Button
               onClick={() => setIsTrailerOpen(true)}
               className="bg-white text-black p-3 rounded-full shadow"
@@ -210,7 +223,7 @@ const MovieDetailPage = () => {
               <span className="font-medium">No genres available</span>
             )}
           </div>
-          <p className="text-gray-700 mt-5">{movie.overview}</p>
+          <p className="text-foreground mt-5">{movie.overview}</p>
           <div className="space-y-5 text-foreground mb-8 px-5 mt-4">
             <div className="space-y-1">
               <div className="flex pb-1">
@@ -255,7 +268,9 @@ const MovieDetailPage = () => {
             </div>
           )}
         </div>
+
       </div>
+      <MoreLikeThis/>
     </div>
   );
 };
